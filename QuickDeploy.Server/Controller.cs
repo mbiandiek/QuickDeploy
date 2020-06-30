@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -83,6 +84,8 @@ namespace QuickDeploy.Server
                 this.LogInfo($"Logged on, now searching files in {request.Directory}");
                 var fileFinder = new FileFinder();
                 var fileFindResult = fileFinder.Find(new DirectoryInfo(request.Directory));
+                fileFindResult.Files = fileFindResult.Files?.Where(f => !request.IgnoreFiles.Any(f.FileName.Contains)).ToList() ?? new List<FileFindFile>();
+
                 this.LogInfo(fileFindResult.Files.Count + " files, " + fileFindResult.Directories.Count + " directories");
                 response.Success = true;
                 response.Contents = fileFindResult;

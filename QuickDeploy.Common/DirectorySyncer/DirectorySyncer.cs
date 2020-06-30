@@ -1,8 +1,8 @@
-﻿using System;
+﻿using QuickDeploy.Common.Messages;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QuickDeploy.Common.Messages;
 
 namespace QuickDeploy.Common.DirectorySyncer
 {
@@ -15,14 +15,15 @@ namespace QuickDeploy.Common.DirectorySyncer
             this.client = client;
         }
 
-        public void Sync(string localDirectory, string remoteDirectory, Credentials credentials)
+        public void Sync(string localDirectory, string remoteDirectory, Credentials credentials, List<string> ignoreFiles)
         {
             this.LogInfo($"Analyzing remote directory '{remoteDirectory}' at '{this.client.RemoteAddress}'");
 
             var analyzeDirectoryRequest = new AnalyzeDirectoryRequest
             {
                 Directory = remoteDirectory,
-                Credentials = credentials
+                Credentials = credentials,
+                IgnoreFiles = ignoreFiles
             };
 
             var analyzeDirectoryResponse = this.client.AnalyzeDirectory(analyzeDirectoryRequest);
@@ -37,7 +38,7 @@ namespace QuickDeploy.Common.DirectorySyncer
 
             var basePath = localDirectory;
             var localFileFindResult = new FileFinder.FileFinder().Find(new DirectoryInfo(basePath));
-            var localFiles = localFileFindResult.Files;
+            var localFiles = localFileFindResult.Files.Where(f => !ignoreFiles.Any(f.FileName.Contains)).ToList();
             this.LogInfo($"{localFiles.Count} local files");
 
             var remoteDict = analyzeDirectoryResponse.Contents.Files.ToDictionary(x => x.FileName);
@@ -66,6 +67,8 @@ namespace QuickDeploy.Common.DirectorySyncer
 
             var filesToDelete = remoteDict.Keys.ToList();
 
+            this.LogInfo($"{localFileFindResult.Files.Where(f => ignoreFiles.Any(f.FileName.Contains)).ToList().Count} {string.Join(" & ", ignoreFiles)} not to transfer");
+            this.LogInfo($"{string.Join("; ", localFileFindResult.Files.Where(f => f.FileName.Contains(".config") || f.FileName.Contains(".sec")).ToList().Select(s => s.FileName))}");
             this.LogInfo($"{filesToTransfer.Count} files to transfer");
             this.LogInfo($"{filesToDelete.Count} files to delete");
 

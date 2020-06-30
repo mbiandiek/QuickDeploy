@@ -1,10 +1,11 @@
-﻿using System;
+﻿using QuickDeploy.Common;
+using QuickDeploy.Common.Messages;
+using System;
+using System.Diagnostics;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using QuickDeploy.Common;
-using QuickDeploy.Common.Messages;
 
 namespace QuickDeploy.Client
 {
@@ -25,10 +26,10 @@ namespace QuickDeploy.Client
         private readonly int port;
 
         public QuickDeployTcpSslClient(
-            string hostname, 
-            int port, 
-            string expectedServerCertificateFilename, 
-            string clientCertificateFilename, 
+            string hostname,
+            int port,
+            string expectedServerCertificateFilename,
+            string clientCertificateFilename,
             string clientCertificatePassword)
         {
             this.hostname = hostname;
@@ -125,11 +126,11 @@ namespace QuickDeploy.Client
         {
             if (statusMessage.Type == StatusMessageType.Error)
             {
-                Console.Error.WriteLine("[SERVER] " + statusMessage.Text);
+                Trace.TraceError("[SERVER] " + statusMessage.Text);
             }
             else
             {
-                Console.WriteLine("[SERVER] " + statusMessage.Text);
+                Trace.WriteLine("[SERVER] " + statusMessage.Text);
             }
         }
     }
