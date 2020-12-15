@@ -104,6 +104,11 @@ namespace QuickDeploy.Client
             return this.Call<ChangeServiceStatusRequest, ChangeServiceStatusResponse>(changeServiceStatusRequest);
         }
 
+        public ChangeIisAppPoolStatusResponse ChangeIisAppPoolStatus(ChangeIisAppPoolStatusRequest changeIisAppPoolStatusRequest)
+        {
+            return this.Call<ChangeIisAppPoolStatusRequest, ChangeIisAppPoolStatusResponse>(changeIisAppPoolStatusRequest);
+        }
+
         public ExecuteCommandResponse ExecuteCommand(ExecuteCommandRequest executeCommandRequest)
         {
             return this.Call<ExecuteCommandRequest, ExecuteCommandResponse>(executeCommandRequest);
