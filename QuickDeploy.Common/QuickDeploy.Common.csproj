@@ -57,6 +57,8 @@
     <Compile Include="Messages\AnalyzeDirectoryRequest.cs" />
     <Compile Include="Messages\AuthorizedRequest.cs" />
     <Compile Include="Messages\BaseResponse.cs" />
+    <Compile Include="Messages\ChangeServerModulesStatusResponse.cs" />
+    <Compile Include="Messages\ChangeServerModulesStatusRequest.cs" />
     <Compile Include="Messages\ChangeIisAppPoolStatusRequest.cs" />
     <Compile Include="Messages\ChangeServiceStatusRequest.cs" />
     <Compile Include="Messages\ChangeIisAppPoolStatusResponse.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Process\ProcessResult.cs" />
     <Compile Include="Process\ProcessRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerModuleStatus.cs" />
     <Compile Include="ServiceStatus.cs" />
     <Compile Include="Zipper.cs" />
     <Compile Include="StreamHelper.cs" />

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Threading;
+using mbi.Bundesanzeiger.Server.SteuerungsserverClient;
 using Microsoft.Web.Administration;
 using QuickDeploy.Common;
 using QuickDeploy.Common.FileFinder;
@@ -62,6 +65,11 @@ namespace QuickDeploy.Server
                     return this.ChangeIisAppPoolStatus(changeIisAppPoolStatus);
                 }
 
+                if (request is ChangeServerModulesStatusRequest changeServerModulesStatusRequest)
+                {
+                    return this.ChangeServerModulesStatus(changeServerModulesStatusRequest);
+                }
+
                 if (request is ExecuteCommandRequest executeCommandRequest)
                 {
                     return this.ExecuteCommand(executeCommandRequest);
@@ -78,6 +86,87 @@ namespace QuickDeploy.Server
             }
 
             return null;
+        }
+
+        private ChangeServerModulesStatusResponse ChangeServerModulesStatus(ChangeServerModulesStatusRequest request)
+        {
+            var response = new ChangeServerModulesStatusResponse();
+
+            this.LogInfo($"Trying to logon as {request.Credentials.Username}");
+
+            using (this.Impersonate(request.Credentials, LogonType.Batch))
+            {
+                SocketConnector socketConnector = new SocketConnector();
+
+                this.LogInfo($"firstcontact {request.Server}:{request.Port}:{request.Rubrik}");
+
+                socketConnector.firstcontact(request.Server, request.Port, request.Rubrik);
+                
+                switch (request.DesiredServerModuleStatus)
+                {
+                    case ServerModuleStatus.Sleep:
+                        {
+
+                            if (socketConnector.sendsleep())
+                            {
+                                this.LogInfo($"sleep mode activated ...");
+
+                                var anzahlAktiverServermodule = GetAnzahlAktiverServermodule();
+
+                                if (anzahlAktiverServermodule == 0)
+                                {
+                                    response.Success = true;
+                                }
+                                else
+                                {
+                                    response.ErrorMessage = "Austausch der Module nicht möglich. Aktive Module vorhanden sind.";
+                                }
+                            }
+                            else
+                            {
+                                response.ErrorMessage = $"sendsleep false;ServerDB:{socketConnector.ServerDB()};ServerName:{socketConnector.ServerName()};{socketConnector.getErrorNumber()};{socketConnector.getErrorDesc()} ";
+                            }
+
+                            break;
+                        }
+                    case ServerModuleStatus.Wakeup:
+                        {
+
+                            if (socketConnector.wakeup())
+                            {
+                                this.LogInfo($"sleep mode deactivated");
+                                response.Success = true;
+                            }
+                            else
+                            {
+                                response.ErrorMessage = $"wakeup false;ServerDB:{socketConnector.ServerDB()};ServerName:{socketConnector.ServerName()};{socketConnector.getErrorNumber()};{socketConnector.getErrorDesc()} ";
+                            }
+
+                            break;
+                        }
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(request.DesiredServerModuleStatus));
+                }
+            }
+
+            return response;
+        }
+
+        private int GetAnzahlAktiverServermodule()
+        {
+            string systemConnectionString = SteuerungsserverConnector.GetConnectionStringByType(SteuerungsserverConnector.DBTYPE.SYS);
+            using (var cnn = new SqlConnection(systemConnectionString))
+            {
+                if (cnn.State != ConnectionState.Open)
+                {
+                    cnn.Open();
+                }
+
+                using (var cmd = new SqlCommand("SELECT count(zus_Zustand) FROM [dbo].[tbl_module_zustand] WHERE zus_Zustand = '2'", cnn))
+                {
+                    return (int)cmd.ExecuteScalar();
+                }
+            }
         }
 
         private AnalyzeDirectoryResponse AnalyzeDirectory(AnalyzeDirectoryRequest request)

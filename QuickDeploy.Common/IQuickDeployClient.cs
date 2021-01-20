@@ -16,6 +16,8 @@ namespace QuickDeploy.Common
 
         ChangeIisAppPoolStatusResponse ChangeIisAppPoolStatus(ChangeIisAppPoolStatusRequest changeIisAppPoolStatusRequest);
 
+        ChangeServerModulesStatusResponse ChangeServerModulesStatus(ChangeServerModulesStatusRequest changeServerModulesStatusRequest);
+
         ExecuteCommandResponse ExecuteCommand(ExecuteCommandRequest executeCommandRequest);
 
         ExtractZipResponse ExtractZip(ExtractZipRequest request);

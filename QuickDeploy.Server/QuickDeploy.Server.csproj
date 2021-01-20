@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SteuerungsserverClient">
+      <HintPath>..\..\..\..\..\..\..\Projekte\BANZ_TReg\MAIN\bin\SteuerungsserverClient.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
