@@ -111,7 +111,7 @@ namespace QuickDeploy.Server
                             {
                                 this.LogInfo($"sleep mode activated ...");
 
-                                var anzahlAktiverServermodule = GetAnzahlAktiverServermodule();
+                                var anzahlAktiverServermodule = GetAnzahlAktiverServermodule(request.SystemConnection);
 
                                 if (anzahlAktiverServermodule == 0)
                                 {
@@ -119,7 +119,7 @@ namespace QuickDeploy.Server
                                 }
                                 else
                                 {
-                                    response.ErrorMessage = "Austausch der Module nicht möglich. Aktive Module vorhanden sind.";
+                                    response.ErrorMessage = $"Austausch der Module nicht möglich. Anzahl der aktiven Module beträgt: {anzahlAktiverServermodule}";
                                 }
                             }
                             else
@@ -152,10 +152,9 @@ namespace QuickDeploy.Server
             return response;
         }
 
-        private int GetAnzahlAktiverServermodule()
+        private int GetAnzahlAktiverServermodule(string systemConnection)
         {
-            string systemConnectionString = SteuerungsserverConnector.GetConnectionStringByType(SteuerungsserverConnector.DBTYPE.SYS);
-            using (var cnn = new SqlConnection(systemConnectionString))
+            using (var cnn = new SqlConnection(systemConnection))
             {
                 if (cnn.State != ConnectionState.Open)
                 {

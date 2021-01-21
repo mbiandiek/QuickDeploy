@@ -15,6 +15,8 @@ namespace QuickDeploy.Common.Messages
 
         public string Rubrik { get; set; }
 
+        public string SystemConnection { get; set; }
+
         public ServerModuleStatus DesiredServerModuleStatus { get; set; }
     }
 }
