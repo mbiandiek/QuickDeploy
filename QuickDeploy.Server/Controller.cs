@@ -94,7 +94,7 @@ namespace QuickDeploy.Server
 
             this.LogInfo($"Trying to logon as {request.Credentials.Username}");
 
-            using (this.Impersonate(request.Credentials, LogonType.Batch))
+            using (this.Impersonate(request.Credentials))
             {
                 SocketConnector socketConnector = new SocketConnector();
 
@@ -247,7 +247,7 @@ namespace QuickDeploy.Server
 
             WindowsServiceAccessGranter.GrantAccessToWindowStationAndDesktop(request.Credentials.Domain, request.Credentials.Username);
 
-            using (this.Impersonate(request.Credentials, LogonType.Batch))
+            using (this.Impersonate(request.Credentials))
             {
                 this.LogInfo($"Logged on, now changing service {request.ServiceName} status to {request.DesiredServiceStatus}");
 
@@ -277,7 +277,7 @@ namespace QuickDeploy.Server
 
             WindowsServiceAccessGranter.GrantAccessToWindowStationAndDesktop(request.Credentials.Domain, request.Credentials.Username);
 
-            using (this.Impersonate(request.Credentials, LogonType.Batch))
+            using (this.Impersonate(request.Credentials))
             {
                 this.LogInfo($"Logged on, now changing IIS app pool {request.IisAppPoolName} status to {request.DesiredServiceStatus}");
 
@@ -398,7 +398,7 @@ namespace QuickDeploy.Server
 
         private Impersonation Impersonate(Credentials credentials, LogonType logonType = LogonType.Interactive)
         {
-            this.LogInfo("Before impersonation: " + WindowsIdentity.GetCurrent().Name);
+            this.LogInfo("Before impersonation: Domain:" + credentials.Domain + "Username: " + credentials.Username);
 
             var result = Impersonation.LogonUser(
                 credentials.Domain,
@@ -406,7 +406,7 @@ namespace QuickDeploy.Server
                 credentials.Password,
                 logonType);
 
-            this.LogInfo("After impersonation: " + WindowsIdentity.GetCurrent().Name);
+            this.LogInfo("After impersonation: Domain:" + credentials.Domain + "Username: " + credentials.Username);
 
             return result;
         }
